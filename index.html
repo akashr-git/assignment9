@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Puzzle Game</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        #game-board { display: flex; flex-wrap: wrap; width: 240px; margin: 20px auto; }
+        .tile { width: 60px; height: 60px; margin: 5px; display: flex; justify-content: center; align-items: center;
+                background: #4CAF50; color: white; font-size: 24px; cursor: pointer; border-radius: 5px; }
+        .tile.empty { background: transparent; cursor: default; }
+    </style>
+</head>
+<body>
+    <h2>Rearrange the Numbers to Match: 801433240</h2>
+    <div id="game-board"></div>
+    <button onclick="shuffleTiles()">Shuffle</button>
+    <script>
+        const correctOrder = "801433240".split("");
+        let shuffledNumbers = shuffle([...correctOrder]);
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function createBoard() {
+            const board = document.getElementById("game-board");
+            board.innerHTML = "";
+            shuffledNumbers.forEach((num, index) => {
+                let tile = document.createElement("div");
+                tile.classList.add("tile");
+                tile.textContent = num;
+                tile.draggable = true;
+                tile.addEventListener("dragstart", dragStart);
+                tile.addEventListener("dragover", dragOver);
+                tile.addEventListener("drop", drop);
+                tile.dataset.index = index;
+                board.appendChild(tile);
+            });
+        }
+
+        let draggedItem = null;
+        function dragStart(event) {
+            draggedItem = event.target;
+        }
+
+        function dragOver(event) {
+            event.preventDefault();
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            if (draggedItem !== event.target) {
+                let fromIndex = draggedItem.dataset.index;
+                let toIndex = event.target.dataset.index;
+                [shuffledNumbers[fromIndex], shuffledNumbers[toIndex]] = 
+                [shuffledNumbers[toIndex], shuffledNumbers[fromIndex]];
+                createBoard();
+                checkWin();
+            }
+        }
+
+        function checkWin() {
+            if (shuffledNumbers.join("") === correctOrder.join("")) {
+                alert("Congratulations! You arranged the numbers correctly.");
+            }
+        }
+
+        function shuffleTiles() {
+            shuffledNumbers = shuffle([...correctOrder]);
+            createBoard();
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>
